@@ -1,0 +1,16 @@
+.font-awesome-icon {
+    -fx-font-family: 'Font Awesome 6 Pro';
+}
+
+/* Couleurs par défaut pour les différents types */
+.font-awesome-icon.solid {
+    -fx-text-fill: #333333;
+}
+
+.font-awesome-icon.regular {
+    -fx-text-fill: #666666;
+}
+
+.font-awesome-icon.brand {
+    -fx-text-fill: #4285F4;
+}
