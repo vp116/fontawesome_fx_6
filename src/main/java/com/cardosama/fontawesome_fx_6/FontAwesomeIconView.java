@@ -42,7 +42,7 @@ public class FontAwesomeIconView extends Label {
 
     // Propriétés
     private final StringProperty iconName = new SimpleStringProperty("star");
-    private final ObjectProperty<FontAwesomeType> type = new SimpleObjectProperty<>(FontAwesomeType.REGULAR);
+    private final ObjectProperty<FontAwesomeType> type = new SimpleObjectProperty<>(FontAwesomeType.SOLID);
     private final DoubleProperty size = new SimpleDoubleProperty(20);
     private final ObjectProperty<Paint> color = new SimpleObjectProperty<>(Color.BLACK);
 
