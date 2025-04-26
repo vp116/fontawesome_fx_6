@@ -6,14 +6,14 @@
 
 <?import javafx.scene.control.Button?>
 <?import com.cardosama.fontawesome_fx_6.FontAwesomeIconView?>
-<?import com.cardosama.fontawesome_fx_6.FontAwesomeGlyph?>
+<?import com.cardosama.fontawesome_fx_6.FontAwesomeIconView?>
 <VBox alignment="CENTER" spacing="20.0" xmlns:fx="http://javafx.com/fxml"
       fx:controller="com.cardosama.fontawesome_fx_6.HelloController">
   <padding>
     <Insets bottom="20.0" left="20.0" right="20.0" top="20.0"/>
   </padding>
-<FontAwesomeIconView iconName="star" type="LIGHT" size="30" color="black" />
+
   <Label fx:id="welcomeText"/>
   <Button text="Hello!" onAction="#onHelloButtonClick"/>
-  <FontAwesomeGlyph />
+  <FontAwesomeIconView iconName="cars" color="red" size="50" />
 </VBox>

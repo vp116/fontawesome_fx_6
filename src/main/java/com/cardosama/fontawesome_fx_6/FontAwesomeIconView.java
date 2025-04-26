@@ -1,16 +1,10 @@
-// IconLoader.java
 package com.cardosama.fontawesome_fx_6;
 
 import javafx.beans.property.*;
-import javafx.fxml.FXMLLoader;
-import javafx.scene.control.Label;
 import javafx.scene.paint.Color;
 import javafx.scene.paint.Paint;
 import javafx.scene.text.Font;
-
-import java.io.IOException;
-import java.util.logging.Level;
-import java.util.logging.Logger;
+import javafx.scene.text.Text;
 
 /**
  * Composant JavaFX pour afficher une icône FontAwesome avec personnalisation dynamique.
@@ -37,42 +31,19 @@ import java.util.logging.Logger;
  * Auteur : Cardo Sama
  * Version : 1.1
  */
-public class FontAwesomeIconView extends Label {
-    private static final Logger LOGGER = Logger.getLogger(FontAwesomeIconView.class.getName());
 
-    // Propriétés
-    private final StringProperty iconName = new SimpleStringProperty("star");
-    private final ObjectProperty<FontAwesomeType> type = new SimpleObjectProperty<>(FontAwesomeType.SOLID);
-    private final DoubleProperty size = new SimpleDoubleProperty(20);
-    private final ObjectProperty<Paint> color = new SimpleObjectProperty<>(Color.BLACK);
+public class FontAwesomeIconView extends Text {
+    private final StringProperty iconName = new SimpleStringProperty(this, "iconName", "star");
+    private final ObjectProperty<FontAwesomeType> type = new SimpleObjectProperty<>(this, "type", FontAwesomeType.SOLID);
+    private final DoubleProperty size = new SimpleDoubleProperty(this, "size", 16);
+    private final ObjectProperty<Paint> color = new SimpleObjectProperty<>(this, "color", Color.BLACK);
 
     /**
      * Constructeur par défaut.
-     * Initialise le composant et charge le fichier FXML associé.
+     * Crée une icône avec l'étoile SOLID par défaut.
      */
     public FontAwesomeIconView() {
-        getStyleClass().add("font-awesome-icon");
-
-        // Chargement du FXML
-        try {
-            FXMLLoader loader = new FXMLLoader(getClass().getResource("fontawesomeIconView.fxml"));
-            loader.setRoot(this);
-            loader.setController(this);
-            loader.load();
-        } catch (IOException e) {
-            LOGGER.log(Level.SEVERE, "Erreur lors du chargement du FXML pour FontAwesomeIconView", e);
-        }
-
-        // S'assurer que FontAwesome est initialisé
-        if (!FontAwesome.isInitialized()) {
-            FontAwesome.initialize();
-        }
-
-        // Écouteurs pour les changements de propriétés
-        iconName.addListener((obs, oldVal, newVal) -> updateIcon());
-        type.addListener((obs, oldVal, newVal) -> updateIcon());
-        size.addListener((obs, oldVal, newVal) -> updateIcon());
-        color.addListener((obs, oldVal, newVal) -> updateColor());
+        this("star", FontAwesomeType.SOLID);
     }
 
     /**
@@ -81,8 +52,7 @@ public class FontAwesomeIconView extends Label {
      * @param iconName Le nom de l'icône à afficher
      */
     public FontAwesomeIconView(String iconName) {
-        this();
-        setIconName(iconName);
+        this(iconName, FontAwesomeType.SOLID);
     }
 
     /**
@@ -92,8 +62,7 @@ public class FontAwesomeIconView extends Label {
      * @param type     Le type de l'icône (SOLID, REGULAR, etc.)
      */
     public FontAwesomeIconView(String iconName, FontAwesomeType type) {
-        this(iconName);
-        setType(type);
+        this(iconName, type, 16, Color.BLACK);
     }
 
     /**
@@ -105,50 +74,53 @@ public class FontAwesomeIconView extends Label {
      * @param color    La couleur de l'icône
      */
     public FontAwesomeIconView(String iconName, FontAwesomeType type, double size, Paint color) {
-        this(iconName, type);
+        // S'assurer que FontAwesome est initialisé
+        if (!FontAwesome.isInitialized()) {
+            FontAwesome.initialize();
+        }
+
+        setIconName(iconName);
+        setType(type);
         setSize(size);
         setColor(color);
+
+        // Écouteurs pour mettre à jour l'icône quand les propriétés changent
+        this.iconName.addListener((obs, oldVal, newVal) -> updateIcon());
+        this.type.addListener((obs, oldVal, newVal) -> updateIcon());
+        this.size.addListener((obs, oldVal, newVal) -> updateIcon());
+        this.color.addListener((obs, oldVal, newVal) -> updateIcon());
+
+        updateIcon();
     }
 
     /**
-     * Met à jour la couleur de l'icône.
-     */
-    private void updateColor() {
-        if (color.get() != null) {
-            setTextFill(color.get());
-        }
-    }
-
-    /**
-     * Met à jour l'icône affichée en fonction des propriétés.
+     * Met à jour l'icône affichée en fonction des propriétés courantes.
      */
     private void updateIcon() {
-        if (iconName.get() == null || iconName.get().isEmpty() || type.get() == null) {
+        if (getIconName() == null || getIconName().isEmpty() || getType() == null) {
             setText("");
             return;
         }
 
-        String unicode = IconLoader.getUnicode(iconName.get(), type.get());
+        String unicode = IconLoader.getUnicode(getIconName(), getType());
         if (unicode != null) {
             setText(unicode);
+            setFill(getColor());
 
             // Obtenir la police avec la taille spécifiée
-            String fontPath = FontAwesome.getFontPathForType(type.get());
-            var iconFont = FontAwesome.getFont(fontPath, size.get());
+            String fontPath = FontAwesome.getFontPathForType(getType());
+            Font iconFont = FontAwesome.getFont(fontPath, getSize());
 
             if (iconFont != null) {
                 setFont(iconFont);
             } else {
                 // Fallback : charger directement la police
-                setFont(Font.loadFont(FontAwesome.class.getResourceAsStream(fontPath), size.get()));
+                setFont(Font.loadFont(FontAwesome.class.getResourceAsStream(fontPath), getSize()));
             }
-        } else {
-            LOGGER.warning("Icône non trouvée : " + iconName.get() + " (type: " + type.get() + ")");
-            setText("");
         }
     }
 
-    // Getters et setters pour les propriétés
+    // Propriétés accessibles depuis FXML
 
     /**
      * Obtient le nom de l'icône.
@@ -257,6 +229,19 @@ public class FontAwesomeIconView extends Label {
     public ObjectProperty<Paint> colorProperty() {
         return color;
     }
+
+
+    /**
+     * Définit une nouvelle icône à afficher.
+     *
+     * @param iconName Le nom de la nouvelle icône
+     * @param type     Le type de la nouvelle icône
+     */
+    public void setIcon(String iconName, FontAwesomeType type) {
+        setIconName(iconName);
+        setType(type);
+    }
+
 
     /**
      * Vérifie si l'icône spécifiée existe pour le type actuel.
